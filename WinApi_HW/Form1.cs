@@ -25,25 +25,36 @@ namespace WinApi_HW
 
         private void button1_Click(object sender, EventArgs e)
         {
-            IntPtr ptr = NativeMethods.FindWindow(null, "WinApiForm");
-            NativeMethods.SendMessage(ptr, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_SETTEXT), (IntPtr)20, textBox1.Text);
-            MessageBox.Show("Заголовок изменен!!!");
-            NativeMethods.Beep(1000,5000);
+            if(textBox_find.Text == "")
+            {
+                MessageBox.Show("Введите данные в окно поиска!");
+            }
+            else
+            {
+                IntPtr ptr = NativeMethods.FindWindow(null, textBox_find.Text);
+                if (ptr == (IntPtr)0x00000000)
+                    MessageBox.Show("Окно не найдено!");
+                else
+                {
+                    NativeMethods.SendMessage(ptr, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_SETTEXT), (IntPtr)20, textBox1.Text);
+                    MessageBox.Show("Заголовок изменен!!!");
+                }
+            }
 
         }
 
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if(textBox1.Text == "")
+            if (textBox1.Text == "")
             {
-                IntPtr ptr = NativeMethods.FindWindow(null, "WinApiForm");
+                IntPtr ptr = NativeMethods.FindWindow(null, textBox_find.Text);
                 NativeMethods.SendMessage(ptr, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_CLOSE), (IntPtr)20, "");
 
             }
             else
             {
-                IntPtr ptr = NativeMethods.FindWindow(null,textBox1.Text);
+                IntPtr ptr = NativeMethods.FindWindow(null, textBox1.Text);
                 NativeMethods.SendMessage(ptr, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_CLOSE), (IntPtr)20, "");
             }
         }
@@ -96,6 +107,23 @@ namespace WinApi_HW
             if (comboBox1.SelectedIndex == 5)
                 NativeMethods.MessageBeep(NativeMethods.OldBeepTypes.Ok);
         }
+
+        private void btn_mute_Click(object sender, EventArgs e)
+        {
+            NativeMethods.SendMessage(this.Handle, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_APPCOMMAND), IntPtr.Zero, (IntPtr)NativeMethods.GetWindow_Cmd.APPCOMMAND_VOLUME_MUTE);
+        }
+
+        private void btn_up_Click(object sender, EventArgs e)
+        {
+            NativeMethods.SendMessage(this.Handle, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_APPCOMMAND), IntPtr.Zero, (IntPtr)NativeMethods.GetWindow_Cmd.APPCOMMAND_VOLUME_UP);
+
+        }
+
+        private void btn_down_Click(object sender, EventArgs e)
+        {
+            NativeMethods.SendMessage(this.Handle, Convert.ToInt32(NativeMethods.GetWindow_Cmd.WM_APPCOMMAND), IntPtr.Zero, (IntPtr)NativeMethods.GetWindow_Cmd.APPCOMMAND_VOLUME_DOWN);
+
+        }
     }
     internal static class NativeMethods
     {
@@ -105,7 +133,13 @@ namespace WinApi_HW
         internal static extern IntPtr FindWindow(string ClassName, string WindowName);
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         internal static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, string lParam);
+
+        [DllImport("User32.dll", CharSet = CharSet.Auto)]
+        internal static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
+
+
         [DllImport("kernel32.dll", SetLastError = true)]
+
         internal static extern bool Beep(int frequency, int duration);
         [DllImport("user32.dll")]
   	    internal static extern bool MessageBeep(OldBeepTypes beepType);
@@ -118,8 +152,8 @@ namespace WinApi_HW
   		IconQuestion = 0x00000020,
 		Ok = 0x00000000
  	    };
-    public enum GetWindow_Cmd : uint
-        {
+         public enum GetWindow_Cmd : uint
+         {
             GW_HWNDFIRST = 0,
             GW_HWNDLAST = 1,
             GW_HWNDNEXT = 2,
@@ -130,7 +164,11 @@ namespace WinApi_HW
             WM_GETTEXT = 0x000D,
             WM_SETTEXT = 0xC,
             WM_CLOSE = 0x0010,
-        }
+            WM_APPCOMMAND = 0x319,
+            APPCOMMAND_VOLUME_MUTE = 0x80000,
+            APPCOMMAND_VOLUME_DOWN = 0x90000,
+            APPCOMMAND_VOLUME_UP = 0xA0000
+         }
         
     }
 }
